@@ -13,7 +13,7 @@ mutable struct Box <: AbstractSpace
     shape::Tuple
 end
 
-function Box(low::Number, high::Number, shape::Union{Tuple, Array{Int64, 1}}, dtype::Union{DataType, Nothing}=nothing)
+function Box(low::Number, high::Number, shape::Union{Tuple, Array{Integer, 1}}, dtype::Union{DataType, Nothing}=nothing)
     if isnothing(dtype)
         dtype = high == 255 ? UInt8 : Float32
         @warn "dtype was autodetected as $(dtype). Please provide explicit data type."

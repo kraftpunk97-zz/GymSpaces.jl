@@ -25,12 +25,12 @@ mutable struct MultiDiscrete <: AbstractSpace
     shape::Tuple
 end
 
-function MultiDiscrete(nvec::NTuple{N, Int} where N) # nvec: vector of counts of each categorical variable
+function MultiDiscrete(nvec::NTuple{N, Integer} where N) # nvec: vector of counts of each categorical variable
     @assert all(nvec .> 0) "nvec (counts) have to be positive"
     MultiDiscrete(nvec, nvec)
 end
 
-MultiDiscrete(nvec::Array{Int, 1}) = MultiDiscrete(Tuple(nvec))
+MultiDiscrete(nvec::Array{Integer, 1}) = MultiDiscrete(Tuple(nvec))
 
 sample(multidisc_obj::MultiDiscrete) = [UInt32(rand(1:counts)) for counts in multidisc_obj.nvec]
 
