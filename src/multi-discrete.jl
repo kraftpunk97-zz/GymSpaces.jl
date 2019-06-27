@@ -30,7 +30,7 @@ function MultiDiscrete(nvec::NTuple{N, Integer} where N) # nvec: vector of count
     MultiDiscrete(nvec, nvec)
 end
 
-MultiDiscrete(nvec::Array{Integer, 1}) = MultiDiscrete(Tuple(nvec))
+MultiDiscrete(nvec::Array{<:Integer, 1}) = MultiDiscrete(Tuple(nvec))
 
 sample(multidisc_obj::MultiDiscrete) = [UInt32(rand(1:counts)) for counts in multidisc_obj.nvec]
 
