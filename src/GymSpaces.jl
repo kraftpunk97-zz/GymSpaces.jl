@@ -1,4 +1,4 @@
-module Space
+module GymSpaces
 
 export sample, AbstractSpace,
        Box, TupleSpace, Discrete, DictSpace, MultiBinary, MultiDiscrete
