@@ -1,6 +1,6 @@
-# Space.jl
+# GymSpaces.jl
 
-To add this package...`] add https://github.com/kraftpunk97/Space.jl`
+To add this package...`] add https://github.com/kraftpunk97/GymSpaces.jl`
 
 ## Exportable items
 
