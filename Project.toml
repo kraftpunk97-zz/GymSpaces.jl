@@ -1,4 +1,4 @@
-name = "Space"
+name = "GymSpaces"
 uuid = "4896a6fa-884d-11e9-35a0-9763e69c01ff"
 authors = ["Kartikey Gupta <kartikeygupta9097@gmail.com>"]
 version = "0.1.0"
