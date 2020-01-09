@@ -21,3 +21,4 @@ To add this package...`] add https://github.com/kraftpunk97/GymSpaces.jl`
 
 ### Methods
 * `sample()`
+* `seed()`
