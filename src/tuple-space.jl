@@ -26,6 +26,23 @@ Base.length(tuple_obj::TupleSpace) = length(tuple_obj.spaces)
 Base.:(==)(tuple_obj::TupleSpace, other::TupleSpace) = tuple_obj.spaces == other.spaces
 # Base.getindex(::Box, index...)
 
+"""
+    seed!(tuple_obj::TupleSpace, seeds...)
+
+Manually set the seed to the assigned values.
+
+# Example
+
+julia> space = TupleSpace([Discrete(5), Discrete(10)])
+.
+.
+.
+
+julia> seed!(space, 42, 87) # Since there are only two spaces in the TupleSpace
+
+julia> sample(space)
+(4, 5)
+"""
 function seed!(tuple_obj::TupleSpace, seeds...)
     for (space, seed) in zip(tuple_obj.spaces, seeds)
         seed!(space, seed)

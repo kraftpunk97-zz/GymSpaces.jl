@@ -26,6 +26,24 @@ function contains(x, dict_obj::DictSpace)
     return true
 end
 
+"""
+    seed!(dict_obj::DictSpace; kwarg_seeds...)
+
+
+Seeds the spaces in the DictSpace. Currently, seeding of DictSpaces with only Symbol keys is allowed.
+
+# Example
+
+julia> space = DictSpace(Dict(:position => Discrete(5),
+                              :velocity => Box([0, 0], [1, 5], Float32)))
+.
+.
+.
+
+julia> seed!(space, position=42)
+
+julia> seed!(space, position=2, velocity=4)
+"""
 function seed!(dict_obj::DictSpace; kwarg_seeds...)
     if !(Symbol <: dict_obj.spaces |> keys |> eltype)
         throw(ErrorException("Seeding with DictSpaces with only symbols as keys is allowed at the moment."))

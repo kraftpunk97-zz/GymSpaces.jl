@@ -18,6 +18,11 @@ include("multi-discrete.jl")
 Base.in(x, space_obj::AbstractSpace) = contains(x, space_obj)
 Base.size(space_obj::AbstractSpace) = space_obj.shape
 
+"""
+    seed!(space::Union{Box, Discrete, MultiBinary, MultiDiscrete}, seed::Int=42)
+
+Sets the seed to `seed` value. Default value is 42
+"""
 function seed!(space::Union{Box, Discrete, MultiBinary, MultiDiscrete}, seed::Int=42)
     space.seed = MersenneTwister(seed)
     return nothing
