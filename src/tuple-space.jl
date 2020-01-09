@@ -1,5 +1,3 @@
-# TODO: seed, __getitem__, copy
-
 """
 A tuple (i.e., product) of simpler spaces
 
@@ -27,3 +25,9 @@ Base.length(tuple_obj::TupleSpace) = length(tuple_obj.spaces)
 
 Base.:(==)(tuple_obj::TupleSpace, other::TupleSpace) = tuple_obj.spaces == other.spaces
 # Base.getindex(::Box, index...)
+
+function seed!(tuple_obj::TupleSpace, seeds...)
+    for (space, seed) in zip(tuple_obj.spaces, seeds)
+        seed!(space, seed)
+    end
+end

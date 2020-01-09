@@ -1,4 +1,3 @@
-#TODO: Write more tests
 using Test
 using GymSpaces
 
@@ -37,9 +36,6 @@ end
         @test space1 != space2
     end
 end
-
-
-
 
 # Special tests for the Box Space
 
@@ -111,5 +107,34 @@ test_case_box5 = (
 @testset "Unequal box spaces with equal bounds and unequal dtypes" begin
     @testset "$case" for case in test_case_box5
         @test case.first != case.second
+    end
+end
+
+seed_test_case = (
+    (Box(4.0, 9.0, [12, ], Float32), [42]),
+    (Box(4.0, 9.0, [12, ], Int), [42]),
+    (TupleSpace([Discrete(5), Discrete(10)]), [42, 42]),
+    (MultiBinary(8), [42]),
+    (Discrete(5), [42]),
+    (MultiDiscrete([2, 2, 100]), [42])
+)
+
+@testset "Seeding" begin
+    @testset "$case" for case in seed_test_case
+        space, seeds = case
+        seed!(space, seeds...)
+        sample1 = sample(space)
+        seed!(space, seeds...)
+        sample2 = sample(space)
+        @test all(sample1 .== sample2)
+    end
+    dictspace = DictSpace(Dict(:position => Discrete(5),
+                               :velocity => Box([0, 0], [1, 5], Float32)))
+    @testset "$dictspace" begin
+        seed!(dictspace, position=42, velocity=42)
+        sample1 = [f for f in sample(dictspace)]
+        seed!(dictspace, position=42, velocity=42)
+        sample2 = [f for f in sample(dictspace)]
+        @test all(sample1 .== sample2)
     end
 end

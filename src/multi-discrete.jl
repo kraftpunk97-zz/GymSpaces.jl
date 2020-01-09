@@ -23,16 +23,17 @@ e.g. Nintendo Game Controller
 mutable struct MultiDiscrete <: AbstractSpace
     nvec::NTuple{N, UInt32} where N
     shape::Tuple
+    seed::MersenneTwister
 end
 
-function MultiDiscrete(nvec::NTuple{N, Integer} where N) # nvec: vector of counts of each categorical variable
+function MultiDiscrete(nvec::NTuple{N, Integer} where N; seed::Int=42) # nvec: vector of counts of each categorical variable
     @assert all(nvec .> 0) "nvec (counts) have to be positive"
-    MultiDiscrete(nvec, nvec)
+    MultiDiscrete(nvec, nvec, MersenneTwister(seed))
 end
 
-MultiDiscrete(nvec::Array{<:Integer, 1}) = MultiDiscrete(Tuple(nvec))
+MultiDiscrete(nvec::Array{<:Integer, 1}; seed::Int=42) = MultiDiscrete(Tuple(nvec), seed=seed)
 
-sample(multidisc_obj::MultiDiscrete) = [UInt32(rand(1:counts)) for counts in multidisc_obj.nvec]
+sample(multidisc_obj::MultiDiscrete) = [UInt32(rand(multidisc_obj.seed, 1:counts)) for counts in multidisc_obj.nvec]
 
 contains(x, multidisc_obj::MultiDiscrete) = all(0 .< x .<= multidisc_obj.nvec)
 

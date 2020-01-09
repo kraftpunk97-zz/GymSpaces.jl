@@ -1,6 +1,8 @@
 # TODO: seed, copy
 
 """
+    Box(low::Number, high::Number, shape::Union{Tuple, Array{<:Integer, 1}}, dtype::Union{DataType, Nothing}=nothing; seed::Int=42)
+
 A box in R^n, i.e., each coordinate is bounded.
 
 Two kinds of valid input:
@@ -10,10 +12,19 @@ Two kinds of valid input:
 mutable struct Box <: AbstractSpace
     low::Array
     high::Array
-    shape::Tuple
+    shape
+    seed::MersenneTwister
 end
 
-function Box(low::Number, high::Number, shape::Union{Tuple, Array{<:Integer, 1}}, dtype::Union{DataType, Nothing}=nothing)
+"""
+    Box(low::Number, high::Number, shape::Union{Tuple, Array{<:Integer, 1}}, dtype::Union{DataType, Nothing}=nothing; seed::Int=42)
+
+A box in R^n with a low and high values of being vectors of `low` and `high` and of shape `shape`. Optional input `seed` for sampling.
+
+Example
+Box(-1.0, 1.0, (3,4)) # low and high are scalars, and shape is provided
+"""
+function Box(low::Number, high::Number, shape::Union{Tuple, Array{<:Integer, 1}}, dtype::Union{DataType, Nothing}=nothing; seed::Int=42)
     if isnothing(dtype)
         dtype = high == 255 ? UInt8 : Float32
         @warn "dtype was autodetected as $(dtype). Please provide explicit data type."
@@ -32,12 +43,12 @@ function Box(low::Number, high::Number, shape::Union{Tuple, Array{<:Integer, 1}}
         high = floor(dtype, high)
     end
 
-    Low = dtype(low) .+ zeros(dtype, shape)
-    High = dtype(high) .+ zeros(dtype, shape)
-    return Box(Low, High, shape)
+    Low = dtype(low) .+ zeros(dtype, shape...)
+    High = dtype(high) .+ zeros(dtype, shape...)
+    return Box(Low, High, shape, MersenneTwister(seed))
 end
 
-function Box(low::Array, high::Array, dtype::Union{DataType, Nothing}=nothing)
+function Box(low::Array, high::Array, dtype::Union{DataType, Nothing}=nothing; seed::Int=42)
     @assert size(low) == size(high) "Dimension mismatch between low and high arrays."
     shape = size(low)
     @assert all(low .< high) "elements of low must be lesser than their respective counterparts in high"
@@ -56,29 +67,29 @@ function Box(low::Array, high::Array, dtype::Union{DataType, Nothing}=nothing)
         low = dtype.(low)
         high = dtype.(high)
     end
-    return Box(low, high, shape)
+    return Box(low, high, shape, MersenneTwister(seed))
 end
-#=
-function seed!(box_obj::Box, seed::Int)
-    box_obj.seed = seed
-end
-=#
 
-Base.:(==)(box_obj::Box, other::Box) = checkvalidtypes(box_obj, other) && isapprox(box_obj.low, other.low) && isapprox(box_obj.high, other.high)
+Base.:(==)(box_obj::Box, other::Box) = _checkvalidtypes(box_obj, other) && isapprox(box_obj.low, other.low) && isapprox(box_obj.high, other.high)
 
 function sample(box_obj::Box)
     dtype = eltype(box_obj.low)
     dtype <: AbstractFloat ?
-        rand(dtype, size(box_obj)) .* (box_obj.high .- box_obj.low) .+ box_obj.low :
-        rand.(UnitRange.(box_obj.low, box_obj.high))
+        rand(box_obj.seed, dtype, size(box_obj)...) .* (box_obj.high .- box_obj.low) .+ box_obj.low :
+        rand.([box_obj.seed], UnitRange.(box_obj.low, box_obj.high))
 end
 
 function contains(x::Union{Real, AbstractArray, NTuple}, box_obj::Box)
     isa(x, Number) && size(box_obj.low) == (1,) && (x = [x])
-    size(x) == size(box_obj) && all(box_obj.low .<= x .<= box_obj.high)
+    size(x) == size(box_obj) && all(box_obj.low .≤ x .≤ box_obj.high)
 end
 
-function checkvalidtypes(box_obj1::Box, box_obj2::Box)
+"""
+    _checkvalidtypes(box_obj1::Box, box_obj2::Box)
+
+Utility for checking whether two box instances have compatible element data types.
+"""
+function _checkvalidtypes(box_obj1::Box, box_obj2::Box)
     dtype1, dtype2 = eltype(box_obj1.low), eltype(box_obj2.low)
     dtype1 == dtype2 ||                            # If the dtypes of both boxes are not the same...
             (dtype1 <: Unsigned && dtype2 <: Unsigned) || (dtype1 <: Signed && dtype2 <: Signed)  # then check if they're both signed or both unsigned.

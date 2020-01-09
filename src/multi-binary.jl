@@ -1,14 +1,12 @@
 
-#TODO: seed, copy
-
 mutable struct MultiBinary <: AbstractSpace
     n::Int
     shape::Tuple
-
-    MultiBinary(n::Integer) = new(n, (n, ))
+    seed::MersenneTwister
+    MultiBinary(n::Integer; seed::Int=42) = new(n, (n, ), MersenneTwister(seed))
 end
 
-sample(multibin_obj::MultiBinary) = (multibin_obj.dtype)(rand(0:1, multibin_obj.n))
+sample(multibin_obj::MultiBinary) = rand(multibin_obj.seed, 0:1, multibin_obj.n)
 
 contains(x, multibin_obj::MultiBinary) = all((x .== 0) .| (x .== 1))
 

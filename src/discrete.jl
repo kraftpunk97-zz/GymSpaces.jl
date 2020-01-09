@@ -8,10 +8,11 @@ discrete_obj.observation_space = Discrete(2)
 mutable struct Discrete <: AbstractSpace
     n::Int
     shape::Tuple
-    Discrete(N::Integer) = new(N, (N, ))
+    seed::MersenneTwister
+    Discrete(N::Integer, seed::Int=42) = new(N, (N, ), MersenneTwister(seed))
 end
 
-sample(discrete_obj::Discrete) = rand(1:discrete_obj.n)
+sample(discrete_obj::Discrete) = rand(discrete_obj.seed, 1:discrete_obj.n)
 
 function contains(x::Union{Number, AbstractArray}, discrete_obj::Discrete)
     as_int = nothing

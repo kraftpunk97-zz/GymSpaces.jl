@@ -1,5 +1,4 @@
 using DataStructures: OrderedDict
-#TODO: seed, copy
 
 
 mutable struct DictSpace <: AbstractSpace
@@ -9,7 +8,7 @@ mutable struct DictSpace <: AbstractSpace
     DictSpace(;space_kwargs...) = new(OrderedDict{Symbol, AbstractSpace}(space_kwargs), ())
 end
 
-DictSpace(spaces::Dict{<:Union{Symbol, AbstractString}, <:AbstractSpace})  =
+DictSpace(spaces::Dict{T , <:AbstractSpace}) where T  =
     DictSpace(OrderedDict(sort([(sym, space) for (sym, space) in pairs(spaces)])))
 
 sample(dict_obj::DictSpace) = OrderedDict([(k, sample(space)) for (k, space) in pairs(dict_obj.spaces)])
@@ -25,6 +24,18 @@ function contains(x, dict_obj::DictSpace)
         (isnothing(get(x, k, nothing)) || !(x[k] ∈ space)) && return false
     end
     return true
+end
+
+function seed!(dict_obj::DictSpace; kwarg_seeds...)
+    if !(Symbol <: dict_obj.spaces |> keys |> eltype)
+        throw(ErrorException("Seeding with DictSpaces with only symbols as keys is allowed at the moment."))
+    end
+    for kwarg in kwarg_seeds
+        space = get(dict_obj.spaces, kwarg.first, nothing)
+        isnothing(space) &&
+            throw(ArgumentError("$(kwarg.first) is not present in this DictSpace."))
+        seed!(space, kwarg.second)
+    end
 end
 
 Base.:(==)(dict_obj::DictSpace, other::DictSpace) = dict_obj.spaces == other.spaces
